@@ -48,7 +48,7 @@ var getPhotos = function(callback) {
     var filename = files[index];
     photos.push({
       name: filename,
-      date: index,
+      date: 1000-index,
       metadata: {
         thumbnail: 'Resources/' + filename
       }
