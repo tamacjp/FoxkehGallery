@@ -1320,6 +1320,18 @@ function showFile(n) {
     $('fullscreen-edit-button').classList.add('disabled');
   else
     $('fullscreen-edit-button').classList.remove('disabled');
+
+  var slideShow = function() {
+    setTimeout(function() {
+      if (currentFileIndex < files.length - 1) {
+        nextFile(1000);
+        slideShow();
+      } else {
+        setView(thumbnailListView);
+      }
+    }, 3000/*ms*/);
+  };
+  slideShow();
 }
 
 // Transition to the next file, animating it over the specified time (ms).
