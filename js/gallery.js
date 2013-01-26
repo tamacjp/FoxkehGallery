@@ -273,6 +273,7 @@ function init() {
 // Initialize MediaDB objects for photos and videos, and set up their
 // event handlers.
 function initDB(include_videos) {
+include_videos=false;
   photodb = new MediaDB('pictures', metadataParsers.imageMetadataParser, {
     mimeTypes: ['image/jpeg', 'image/png'],
     version: 2,
@@ -321,6 +322,7 @@ function initDB(include_videos) {
       initThumbnails();
     }
   };
+setTimeout(function() { photodb.onready(); }, 1000/*ms*/);
 
   if (include_videos) {
     videodb.onready = function() {
@@ -408,6 +410,7 @@ function initThumbnails() {
                            thumbnailOffscreen); // remove background image
 
   var photos, videos;
+/*
   photodb.getAll(function(records) {
     photos = records;
     if (videos)
@@ -424,6 +427,25 @@ function initThumbnails() {
   else {
     videos = [];
   }
+*/
+  photos = [
+    {
+      name: 'aiueo',
+      date: 1,
+      metadata: {
+        thumbnail: 'Resources/200704.png'
+      }
+    },
+    {
+      name: 'abcdef',
+      date: 2,
+      metadata: {
+        thumbnail: 'Resources/200902.png'
+      }
+    }
+  ];
+  videos = [];
+  setTimeout(mergeAndCreateThumbnails, 100/*ms*/);
 
   // This is called when we have all the photos and all the videos
   function mergeAndCreateThumbnails() {
@@ -720,7 +742,8 @@ function createThumbnail(imagenum) {
 
   var fileinfo = files[imagenum];
   // We revoke this url in imageDeleted
-  var url = URL.createObjectURL(fileinfo.metadata.thumbnail);
+  //var url = URL.createObjectURL(fileinfo.metadata.thumbnail);
+  var url = fileinfo.metadata.thumbnail;
 
   // We set the url on a data attribute and let the onscreen
   // and offscreen callbacks below set and unset the actual
