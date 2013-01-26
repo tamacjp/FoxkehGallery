@@ -1,6 +1,6 @@
 {
-  "name": "My Gallery",
-  "description": "Foxkeh Gallery",
+  "name": "フォクすけギャラリー",
+  "description": "フォクすけギャラリー",
   "launch_path": "/index.html",
   "developer": {
     "name": "tama",
@@ -13,37 +13,10 @@
         "type": "photos"
        },
       "disposition": "window"
-    },
-    "pick": {
-      "filters": {
-        "type": ["image/jpeg", "image/png"]
-       },
-      "disposition": "inline",
-      "returnValue": true,
-      "href": "/index.html#pick"
-    },
-    "open": {
-      "filters": {
-        "type": ["image/jpeg", "image/png", "image/gif"]
-       },
-      "disposition": "inline",
-      "returnValue": true,
-      "href": "/open.html"
     }
   },
-  "locales": {
-    "en-US": {
-      "name": "My Gallery",
-      "description": "Foxkeh Gallery"
-    },
-    "ja-JP": {
-      "name": "まいぎゃらり",
-      "description": "ふぉくすけ"
-    }
-  },
-  "default_locale": "en-US",
   "icons": {
-    "120": "/style/icons/Gallery.png",
-    "60": "/style/icons/60/Gallery.png"
+    "120": "/style/icons/icon.png",
+    "60": "/style/icons/icon.png"
   }
 }
