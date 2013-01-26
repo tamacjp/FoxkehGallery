@@ -273,7 +273,10 @@ function init() {
 // Initialize MediaDB objects for photos and videos, and set up their
 // event handlers.
 function initDB(include_videos) {
-include_videos=false;
+  photodb = {};
+  initThumbnails();
+  return;
+
   photodb = new MediaDB('pictures', metadataParsers.imageMetadataParser, {
     mimeTypes: ['image/jpeg', 'image/png'],
     version: 2,
@@ -322,7 +325,6 @@ include_videos=false;
       initThumbnails();
     }
   };
-setTimeout(function() { photodb.onready(); }, 1000/*ms*/);
 
   if (include_videos) {
     videodb.onready = function() {
@@ -496,6 +498,7 @@ function initThumbnails() {
 }
 
 function scan() {
+  return;
   photodb.scan();
   if (videodb)
     videodb.scan();
