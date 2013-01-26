@@ -430,24 +430,11 @@ function initThumbnails() {
     videos = [];
   }
 */
-  photos = [
-    {
-      name: 'aiueo',
-      date: 1,
-      metadata: {
-        thumbnail: 'Resources/200704.png'
-      }
-    },
-    {
-      name: 'abcdef',
-      date: 2,
-      metadata: {
-        thumbnail: 'Resources/200902.png'
-      }
-    }
-  ];
+  getPhotos(function(records) {
+    photos = records;
+    mergeAndCreateThumbnails();
+  });
   videos = [];
-  setTimeout(mergeAndCreateThumbnails, 100/*ms*/);
 
   // This is called when we have all the photos and all the videos
   function mergeAndCreateThumbnails() {
