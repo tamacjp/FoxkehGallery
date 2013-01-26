@@ -133,6 +133,10 @@ function init() {
   // Clicking on the back button goes back to the thumbnail view
   $('fullscreen-back-button').onclick = setView.bind(null, thumbnailListView);
 
+  $('frame1').onclick =
+  $('frame2').onclick =
+  $('frame3').onclick = setView.bind(null, thumbnailListView);
+
   // Clicking on the select button goes to thumbnail select mode
   $('thumbnails-select-button').onclick =
     setView.bind(null, thumbnailSelectView);
