@@ -1234,6 +1234,7 @@ function setupFrameContent(n, frame) {
   // Remember what file we're going to display
   frame.filename = fileinfo.name;
 
+/*
   if (fileinfo.metadata.video) {
     videodb.getFile(fileinfo.name, function(file) {
       frame.displayVideo(file,
@@ -1250,6 +1251,33 @@ function setupFrameContent(n, frame) {
                          fileinfo.metadata.preview);
     });
   }
+*/
+
+  frame.container.innerHTML = '';   // empty();
+  frame.image = document.createElement('img');
+  frame.image.addEventListener('load', function onload() {
+    this.removeEventListener('load', onload);
+
+    var imgWidth = this.naturalWidth;
+    var imgHeight = this.naturalHeight;
+    var frameWidth = frame.container.clientWidth;
+    var frameHeight = frame.container.clientHeight;
+    if (imgWidth / frameWidth > imgHeight / frameHeight) {
+      this.style.width = "100%";
+      this.style.height = "auto";
+      var height = imgHeight * frameWidth / imgWidth;
+      //console.log("H:"+imgWidth+","+imgHeight+" => "+frameWidth+","+height+" / "+parseInt((frameHeight - height) / 2));
+      this.style.marginTop = parseInt((frameHeight - height) / 2) + "px";
+    } else {
+      this.style.width = "auto";
+      this.style.height = "100%";
+      var width = imgWidth * frameHeight / imgHeight;
+      //console.log("W:"+imgWidth+","+imgHeight+" => "+frameHeight+","+width+" / "+parseInt((frameWidth - width) / 2));
+      this.style.marginLeft = parseInt((frameWidth - width) / 2) + "px";
+    }
+    frame.container.appendChild(this);
+  });
+  frame.image.src = fileinfo.metadata.thumbnail;
 }
 
 var FRAME_BORDER_WIDTH = 3;
