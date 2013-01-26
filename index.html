@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="pragma" content="no-cache">
+    <title>Gallery</title>
+    <link rel="stylesheet" href="style/gallery.css" type="text/css">
+    <link rel="stylesheet" href="style/VideoPlayer.css" type="text/css">
+    <link rel="stylesheet" href="shared/style/headers.css" type="text/css">
+    <!-- Localization -->
+    <!-- <link rel="resource" type="application/l10n" href="locales/locales.ini"> -->
+    <!-- Shared code -->
+    <script type="text/javascript" src="shared/js/l10n.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/gesture_detector.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/mouse_event_shim.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/mediadb.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/blobview.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/media/jpeg_metadata_parser.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/media/get_video_rotation.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/media/video_player.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/media/media_frame.js"></script>
+    <script type="text/javascript" defer="" src="shared/js/visibility_monitor.js"></script>
+    <!-- Specific code -->
+    <script type="text/javascript" defer="" src="js/MetadataParser.js"></script>
+    <script type="text/javascript" defer="" src="js/ImageEditor.js"></script>
+    <script type="text/javascript" defer="" src="js/gallery.js"></script>
+  </head>
+
+  <body class="hidden" role="application">
+    <section role="region" id="thumbnail-list-view" class="hidden">
+      <footer id="thumbnails-bottom">
+        <a id="thumbnails-camera-button" class="button"></a>
+        <a id="thumbnails-select-button" class="button"></a>
+      </footer>
+    </section>
+
+    <section role="region" id="thumbnail-select-view" class="hidden skin-organic">
+      <header id="thumbnails-select-top">
+        <button id="thumbnails-cancel-button"><span class="icon icon-close"></span></button>
+        <h1 id="thumbnails-number-selected"></h1>
+      </header>
+
+      <footer id="thumbnails-select-bottom">
+        <a id="thumbnails-delete-button" class="button"></a>
+        <a id="thumbnails-share-button" class="button"></a>
+      </footer>
+    </section>
+
+    <section role="region" id="fullscreen-view" class="hidden">
+      <div id="frames">
+        <!-- the current photo plus next and previous waiting in the wings -->
+        <div id="frame1" class="frame"></div>
+        <div id="frame2" class="frame"></div>
+        <div id="frame3" class="frame"></div>
+      </div>
+
+      <footer id="fullscreen-toolbar">
+        <a id="fullscreen-back-button" class="button"></a>
+        <a id="fullscreen-camera-button" class="button"></a>
+        <a id="fullscreen-edit-button" class="button"></a>
+        <a id="fullscreen-share-button" class="button"></a>
+        <a id="fullscreen-delete-button" class="button"></a>
+      </footer>
+    </section>
+
+    <section role="region" id="pick-view" class="hidden skin-organic">
+      <header id="pick-top">
+        <button id="pick-back-button"><span class="icon icon-back"></span></button>
+        <h1 id="pick-header" data-l10n-id="pickoneimage2">Select</h1>
+      </header>
+    </section>
+
+    <section role="region" id="crop-view" class="hidden skin-organic">
+      <header id="crop-top">
+        <button id="crop-back-button"><span class="icon icon-back"></span></button>
+        <menu type="toolbar">
+          <button id="crop-done-button"><span class="icon icon-done"></span></button>
+        </menu>
+        <h1 id="crop-header" data-l10n-id="cropimage">Crop</h1>
+      </header>
+      <div id="crop-frame">
+        <img id="crop-image">
+      </div>
+    </section>
+    
+    <section role="region" id="edit-view" class="hidden skin-organic">
+      <header id="edit-header">
+        <button id="edit-cancel-button"><span class="icon icon-close"></span></button>
+        <menu type="toolbar">
+          <button id="edit-save-button"><span class="icon icon-done"></span></button>
+        </menu>
+        <h1 id="edit-title" data-l10n-id="edit">Edit</h1>
+      </header>
+
+      <!-- preview of edited photo goes here -->
+      <!-- canvas elements are dynamically inserted here -->
+      <div id="edit-preview-area">
+      </div>
+
+      <!-- this holds different options for different editing modes -->
+      <!-- only one set of options will be visible at a time -->
+      <div id="edit-options">
+        <div id="exposure-slider" class="edit-options-bar hidden">
+          <div id="sliderbar">
+            <hr id="sliderline">
+            <div id="sliderthumb"></div>
+          </div>
+          <div id="sliderlabels">
+            <div id="slider-3" class="sliderlabel" data-label="-3"></div>
+            <div id="slider-2" class="sliderlabel" data-label="-2"></div>
+            <div id="slider-1" class="sliderlabel" data-label="-1"></div>
+            <div id="slider0" class="sliderlabel" data-label="0"></div>
+            <div id="slider1" class="sliderlabel" data-label="+1"></div>
+            <div id="slider2" class="sliderlabel" data-label="+2"></div>
+            <div id="slider3" class="sliderlabel" data-label="+3"></div>
+          </div>
+        </div>
+
+        <div id="edit-crop-options" class="edit-options-bar hidden"> 
+          <a id="edit-crop-none" class="button"></a>
+          <a id="edit-crop-aspect-free" class="selected radio button"></a>
+          <a id="edit-crop-aspect-portrait" class="radio button"></a>
+          <a id="edit-crop-aspect-landscape" class="radio button"></a>
+          <a id="edit-crop-aspect-square" class="radio button"></a>
+        </div>
+
+        <div id="edit-effect-options" class="edit-options-bar hidden"> 
+          <a id="edit-effect-none" class="selected radio button bgimage" data-effect="none"></a>
+          <a id="edit-effect-bw" class="radio button filter-bw bgimage" data-effect="bw"></a>
+          <a id="edit-effect-sepia" class="radio button filter-sepia bgimage" data-effect="sepia"></a>
+          <a id="edit-effect-bluesteel" class="radio button filter-bluesteel bgimage" data-effect="bluesteel"></a>
+          <a id="edit-effect-faded" class="radio button filter-faded bgimage" data-effect="faded"></a>
+        </div>
+
+        <div id="edit-border-options" class="edit-options-bar hidden"> 
+          <a id="edit-border-none" class="selected radio button bgimage" data-border-width="0"></a>
+          <a id="edit-border-thin-white" class="radio button bgimage" data-border-width=".015" data-border-color="white"></a>
+          <a id="edit-border-thick-white" class="radio button bgimage" data-border-width=".03" data-border-color="white"></a>
+          <a id="edit-border-thin-black" class="radio button bgimage" data-border-width=".015" data-border-color="black"></a>
+          <a id="edit-border-thick-black" class="radio button bgimage" data-border-width=".03" data-border-color="black"></a>
+        </div>
+      </div>
+
+      <!-- buttons for selecting the type of edit to perform -->
+      <footer id="edit-toolbar">
+        <a id="edit-exposure-button" class="button" data-l10n-id="exposure">Exposure</a>
+        <a id="edit-crop-button" class="button" data-l10n-id="crop">Crop</a>
+        <a id="edit-effect-button" class="button" data-l10n-id="effects">Effects</a>
+        <a id="edit-border-button" class="button" data-l10n-id="borders">Borders</a>
+      </footer>
+    </section>
+
+    <!-- This element gets positioned over different view elements -->
+    <!-- It gets styled differently depending on what it is over -->
+    <ul id="thumbnails"></ul> <!-- Thumbnails inserted here -->
+
+    <!-- A thin indeterminate progress bar to indicate scanning -->
+    <!-- set class to "throb" to make it go, or hidden" to make it stop -->
+    <div id="progress" class="hidden">
+      <div id="throbber"></div>
+    </div>
+
+    <!-- display messages like "No Photos" and "No SD Card" here -->
+    <div id="overlay" class="hidden">
+      <div id="overlay-content">
+        <h1 id="overlay-title"></h1>
+        <p id="overlay-text"></p><p>
+      </p></div>
+    </div>
+
+    <!-- display this at startup while we create thumbnails -->
+    <div id="spinner-overlay"><div id="spinner"></div></div>
+
+    <!-- Some SVG filters we use -->
+    <svg id="filters" width="0" height="0">
+      <filter id="filter-bw">
+        <feColorMatrix type="matrix" values="0.65 0.25 0.10 0 0
+                               0.65 0.25 0.10 0 0
+                               0.65 0.25 0.10 0 0
+                               0    0    0    1 0"></feColorMatrix>
+      </filter>
+      <filter id="filter-sepia">
+        <feColorMatrix type="matrix" values="0.393 0.769 0.189 0 0
+                               0.349 0.686 0.168 0 0
+                               0.272 0.534 0.131 0 0
+                               0     0     0     1 0"></feColorMatrix>
+      </filter>
+      <filter id="filter-bluesteel">
+        <feColorMatrix type="matrix" values="1    0.25 0.65 0   0
+                               0.1  1    0.65 0   0
+                               0.1  0.25 1    0.1 0
+                               0    0    0    1   0"></feColorMatrix>
+      </filter>
+      <filter id="filter-faded">
+        <feColorMatrix type="matrix" values="1    0.2   0.2   0.03 0
+                               0.2  0.7   0.2   0.05 0
+                               0.1  0     0.8   0    0
+                               0    0     0     1    0"></feColorMatrix>
+      </filter>
+    </svg>
+
+    <!-- A WebGL vertex shader program. Required by js/ImageEditor.js -->
+    <script id="edit-vertex-shader" type="x-glsl/vertex-shader">
+      attribute vec2 src_pixel;   // pixel position in the image  
+      attribute vec2 dest_pixel;  // pixel position on the canvas
+      uniform vec2 canvas_size;   // size of destination canvas in pixels
+      uniform vec2 image_size;    // size of source image in pixels
+      varying vec2 src_position;  // pass image position to the fragment shader
+
+      void main() {
+        gl_Position = vec4(((dest_pixel/canvas_size)*2.0 - 1.0) * vec2(1, -1),
+                           0, 1);
+        src_position = src_pixel / image_size;
+      }
+    </script>
+
+    <!-- A WebGL fragment shader program. Required by js/ImageEditor.js -->
+    <script id="edit-fragment-shader" type="x-glsl/fragment-shader">
+      precision mediump float;
+      uniform sampler2D image;
+      uniform float border_width;
+      uniform vec4 border_color;
+      uniform vec2 dest_size;     // size of the destination rectangle 
+      uniform vec2 dest_origin;   // upper-left corner of destination rectangle
+      uniform vec4 gamma;
+      uniform mat4 matrix;
+      varying vec2 src_position;  // from the vertex shader
+
+      void main() {
+        // Use border color if we're over the border 
+        if (gl_FragCoord.x < dest_origin.x + border_width || 
+            gl_FragCoord.y < dest_origin.y + border_width ||
+            gl_FragCoord.x > dest_origin.x + dest_size.x - border_width ||
+            gl_FragCoord.y > dest_origin.y + dest_size.y - border_width)
+        {
+          gl_FragColor = border_color;
+          return;
+        }
+  
+        // Otherwise take the image clor, apply gamma correction and 
+        // the color manipulation matrix.
+        vec4 color = texture2D(image, src_position);
+        gl_FragColor = pow(color, gamma) * matrix;
+      }
+    </script>
+  </body>
+<script type="application/l10n">
+  {"locales":{"ar":{"number-selected2":{"textContent":"{[ plural(n) ]}"},"number-selected2[zero]":{"textContent":"Select"},"number-selected2[one]":{"textContent":"{{ n }} selected"},"number-selected2[two]":{"textContent":"{{ n }} selected"},"number-selected2[few]":{"textContent":"{{ n }} selected"},"number-selected2[many]":{"textContent":"{{ n }} selected"},"number-selected2[other]":{"textContent":"{{ n }} selected"},"delete-photo?":{"textContent":"Delete photo?"},"delete-video?":{"textContent":"Delete video?"},"delete-n-items?":{"textContent":"{[ plural(n) ]}"},"delete-n-items?[zero]":{"textContent":"Nothing selected"},"delete-n-items?[one]":{"textContent":"Delete selected item?"},"delete-n-items?[two]":{"textContent":"Delete {{ n }} items?"},"delete-n-items?[few]":{"textContent":"Delete {{ n }} items?"},"delete-n-items?[many]":{"textContent":"Delete {{ n }} items?"},"delete-n-items?[other]":{"textContent":"Delete {{ n }} items?"},"pickoneimage2":{"textContent":"Select"},"cropimage":{"textContent":"Crop"},"cancel":{"textContent":"Cancel"},"edit":{"textContent":"Edit"},"save":{"textContent":"Save"},"exposure":{"textContent":"Exposure"},"crop":{"textContent":"Crop"},"effects":{"textContent":"Effects"},"borders":{"textContent":"Borders"},"original":{"textContent":"Original"},"blackandwhite":{"textContent":"B&W"},"sepia":{"textContent":"Sepia"},"freeform":{"textContent":"Freeform"},"portrait":{"textContent":"Portrait"},"landscape":{"textContent":"Landscape"},"square":{"textContent":"Square"},"emptygallery2-title":{"textContent":"No photos or videos"},"emptygallery2-text":{"textContent":"Use the Camera app to get started."},"nocard2-title":{"textContent":"No memory card"},"nocard2-text":{"textContent":"Insert a memory card to use this app."},"pluggedin2-title":{"textContent":"Memory card in use"},"pluggedin2-text":{"textContent":"Unplug the phone to use this app."},"share-noprovider":{"textContent":"Can not share this image file type."},"memorycardfull":{"textContent":"Can not edit photos: Memory card is full."}},"en-US":{"number-selected2":{"textContent":"{[ plural(n) ]}"},"number-selected2[zero]":{"textContent":"Select"},"number-selected2[one]":{"textContent":"{{ n }} selected"},"number-selected2[two]":{"textContent":"{{ n }} selected"},"number-selected2[few]":{"textContent":"{{ n }} selected"},"number-selected2[many]":{"textContent":"{{ n }} selected"},"number-selected2[other]":{"textContent":"{{ n }} selected"},"delete-photo?":{"textContent":"Delete photo?"},"delete-video?":{"textContent":"Delete video?"},"delete-n-items?":{"textContent":"{[ plural(n) ]}"},"delete-n-items?[zero]":{"textContent":"Nothing selected"},"delete-n-items?[one]":{"textContent":"Delete selected item?"},"delete-n-items?[two]":{"textContent":"Delete {{ n }} items?"},"delete-n-items?[few]":{"textContent":"Delete {{ n }} items?"},"delete-n-items?[many]":{"textContent":"Delete {{ n }} items?"},"delete-n-items?[other]":{"textContent":"Delete {{ n }} items?"},"pickoneimage2":{"textContent":"Select"},"cropimage":{"textContent":"Crop"},"cancel":{"textContent":"Cancel"},"edit":{"textContent":"Edit"},"save":{"textContent":"Save"},"exposure":{"textContent":"Exposure"},"crop":{"textContent":"Crop"},"effects":{"textContent":"Effects"},"borders":{"textContent":"Borders"},"original":{"textContent":"Original"},"blackandwhite":{"textContent":"B&W"},"sepia":{"textContent":"Sepia"},"freeform":{"textContent":"Freeform"},"portrait":{"textContent":"Portrait"},"landscape":{"textContent":"Landscape"},"square":{"textContent":"Square"},"emptygallery2-title":{"textContent":"No photos or videos"},"emptygallery2-text":{"textContent":"Use the Camera app to get started."},"nocard2-title":{"textContent":"No memory card"},"nocard2-text":{"textContent":"Insert a memory card to use this app."},"pluggedin2-title":{"textContent":"Memory card in use"},"pluggedin2-text":{"textContent":"Unplug the phone to use this app."},"share-noprovider":{"textContent":"Can not share this image file type."},"memorycardfull":{"textContent":"Can not edit photos: Memory card is full."}},"fr":{"number-selected2":{"textContent":"{[ plural(n) ]}"},"number-selected2[zero]":{"textContent":"Sélectionner"},"number-selected2[one]":{"textContent":"{{ n }} sélectionnée"},"number-selected2[two]":{"textContent":"{{ n }} sélectionnées"},"number-selected2[few]":{"textContent":"{{ n }} sélectionnées"},"number-selected2[many]":{"textContent":"{{ n }} sélectionnées"},"number-selected2[other]":{"textContent":"{{ n }} sélectionnées"},"delete-photo?":{"textContent":"Supprimer cette photo ?"},"delete-video?":{"textContent":"Supprimer cette vidéo ?"},"delete-n-items?":{"textContent":"{[ plural(n) ]}"},"delete-n-items?[zero]":{"textContent":"Aucun élément sélectionné"},"delete-n-items?[one]":{"textContent":"Supprimer l’élément sélectionné ?"},"delete-n-items?[two]":{"textContent":"Supprimer {{ n }} éléments ?"},"delete-n-items?[few]":{"textContent":"Supprimer {{ n }} éléments ?"},"delete-n-items?[many]":{"textContent":"Supprimer {{ n }} éléments ?"},"delete-n-items?[other]":{"textContent":"Supprimer {{ n }} éléments ?"},"pickoneimage2":{"textContent":"Sélectionner"},"cropimage":{"textContent":"Rogner"},"cancel":{"textContent":"Annuler"},"edit":{"textContent":"Modifier"},"save":{"textContent":"Enregistrer"},"exposure":{"textContent":"Exposition"},"crop":{"textContent":"Découper"},"effects":{"textContent":"Effets"},"borders":{"textContent":"Bords"},"original":{"textContent":"Original"},"blackandwhite":{"textContent":"Noir et blanc"},"sepia":{"textContent":"Sépia"},"freeform":{"textContent":"Forme libre"},"portrait":{"textContent":"Portrait"},"landscape":{"textContent":"Paysage"},"square":{"textContent":"Carré"},"emptygallery2-title":{"textContent":"Aucune photo ou vidéo"},"emptygallery2-text":{"textContent":"Utilisez l’application Photo pour commencer."},"nocard2-title":{"textContent":"Aucune carte mémoire"},"nocard2-text":{"textContent":"Insérez une carte mémoire pour utiliser cette application."},"pluggedin2-title":{"textContent":"Carte mémoire en cours d’utilisation"},"pluggedin2-text":{"textContent":"Débranchez le téléphone pour utiliser cette application."},"share-noprovider":{"textContent":"Impossible de partager ce type d’image."},"memorycardfull":{"textContent":"Impossible de modifier des photos : la carte mémoire est pleine."}},"zh-TW":{"number-selected2":{"textContent":"{[ plural(n) ]}"},"number-selected2[zero]":{"textContent":"選取"},"number-selected2[one]":{"textContent":"已選擇 {{ n }} 張"},"number-selected2[two]":{"textContent":"已選擇 {{ n }} 張"},"number-selected2[few]":{"textContent":"已選擇 {{ n }} 張"},"number-selected2[many]":{"textContent":"已選擇 {{ n }} 張"},"number-selected2[other]":{"textContent":"已選擇 {{ n }} 張"},"delete-photo?":{"textContent":"刪除相片？"},"delete-video?":{"textContent":"刪除影片？"},"delete-n-items?":{"textContent":"{[ plural(n) ]}"},"delete-n-items?[zero]":{"textContent":"未選取項目"},"delete-n-items?[one]":{"textContent":"刪除選取的項目？"},"delete-n-items?[two]":{"textContent":"刪除這 {{ n }} 項？"},"delete-n-items?[few]":{"textContent":"刪除這 {{ n }} 項？"},"delete-n-items?[many]":{"textContent":"刪除這 {{ n }} 項？"},"delete-n-items?[other]":{"textContent":"刪除這 {{ n }} 項？"},"pickoneimage2":{"textContent":"選取"},"cropimage":{"textContent":"裁切"},"cancel":{"textContent":"取消"},"edit":{"textContent":"編輯"},"save":{"textContent":"儲存"},"exposure":{"textContent":"曝光"},"crop":{"textContent":"裁切"},"effects":{"textContent":"特效"},"borders":{"textContent":"外框"},"original":{"textContent":"原始"},"blackandwhite":{"textContent":"黑白"},"sepia":{"textContent":"棕褐色調"},"freeform":{"textContent":"自由變形"},"portrait":{"textContent":"直式"},"landscape":{"textContent":"橫式"},"square":{"textContent":"正方形"},"emptygallery2-title":{"textContent":"無相片或影片"},"emptygallery2-text":{"textContent":"使用「照相機」程式開始。"},"nocard2-title":{"textContent":"無記憶卡"},"nocard2-text":{"textContent":"插入記憶卡以使用此程式。"},"pluggedin2-title":{"textContent":"記憶卡現正使用中"},"pluggedin2-text":{"textContent":"拔除手機以使用此程式。"},"share-noprovider":{"textContent":"無法分享此檔案類型的圖片。"},"memorycardfull":{"textContent":"無法編輯相片: 記憶卡已滿。"}}},"default_locale":"en-US"}
+</script>
+</html>
