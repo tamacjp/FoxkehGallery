@@ -205,7 +205,7 @@ section {
    * the image. So we want a color that contrasts with the border so we
    * at least get the effect of a grid rather than a black screen
    */
-  background-color: #444;
+  background-color: white;
 }
 
 .thumbnail.selected {
@@ -248,7 +248,7 @@ section {
 
 /* since fullscreen-view is fullscreen, it needs its own background color */
 #fullscreen-view {
-  background-color: #444;
+  background-color: white;
 }
 
 #frames {
