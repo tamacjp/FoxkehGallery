@@ -1,18 +1,12 @@
 {
-  "name": "Gallery",
-  "description": "Gaia Gallery",
-  "type": "certified",
+  "name": "My Gallery",
+  "description": "Foxkeh Gallery",
   "launch_path": "/index.html",
   "developer": {
-    "name": "The Gaia Team",
-    "url": "https://github.com/mozilla-b2g/gaia"
+    "name": "tama",
+    "url": "http://tamac.jp/"
   },
   "fullscreen": true,
-  "permissions": {
-    "device-storage:pictures":{ "access": "readwrite" },
-    "device-storage:videos":{ "access": "readwrite" },
-    "settings":{ "access": "readonly" }
-  },
   "activities": {
     "browse": {
       "filters": {
@@ -38,21 +32,13 @@
     }
   },
   "locales": {
-    "ar": {
-      "name": "إستديو",
-      "description": "Gaia إستديو"
-    },
     "en-US": {
-      "name": "Gallery",
-      "description": "Gaia Gallery"
+      "name": "My Gallery",
+      "description": "Foxkeh Gallery"
     },
-    "fr": {
-      "name": "Galerie",
-      "description": "Galerie Gaia"
-    },
-    "zh-TW": {
-      "name": "相簿",
-      "description": "Gaia 相簿"
+    "ja-JP": {
+      "name": "まいぎゃらり",
+      "description": "ふぉくすけ"
     }
   },
   "default_locale": "en-US",
